@@ -1,6 +1,8 @@
 import requests
-import pandas as pd
-from datetime import datetime as dt
+import json
+
+
+api_endpoint = f"https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
 headers = {
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0',
@@ -15,30 +17,10 @@ headers = {
         'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
     }
 
-indices=['BANKNIFTY','NIFTY']
+s = requests.Session()
+response = s.get(api_endpoint, headers=headers)
+data = json.loads(response.content)
 
-
-def fetch(payload):
-        try:
-            output = requests.get(payload,headers=headers).json()
-        except ValueError:
-            s =requests.Session()
-            output = s.get("http://nseindia.com",headers=headers)
-            output = s.get(payload,headers=headers).json()
-        return output
-
-def scrap(symbol):
-    payload = fetch('https://www.nseindia.com/api/option-chain-indices?symbol='+symbol)
-    return payload
-
-def listt(symbol):
-    payload = scrap(symbol)
-    payload = pd.DataFrame({'Date':payload['records']['expiryDates']})
-    return payload
-
-def present():
-    present_exp=str(listt("BANKNIFTY")['Date'][0])
-    present_exp=present_exp.replace("-","").upper()
-    return present_exp
-
-print(f"The current expiry is {present()}")
+for i in data['records']:
+    if i == 'underlyingValue' :
+        print(f"The current value of NIfty is {data['records'][i]}")
