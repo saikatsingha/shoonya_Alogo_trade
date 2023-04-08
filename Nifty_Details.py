@@ -24,3 +24,15 @@ data = json.loads(response.content)
 for i in data['records']:
     if i == 'underlyingValue' :
         print(f"The current value of NIfty is {data['records'][i]}")
+        find_put = data['records'][i] - (data['records'][i]%100)
+        find_call = find_put + 100
+x = 0
+for i in data['filtered']['data']:
+    # print(data['filtered']['data'][x]['strikePrice'])
+    x = x+1
+    if data['filtered']['data'][x]['strikePrice'] == find_put :
+        print(f"Put Value of the Strike Price  {data['filtered']['data'][x]['PE']['strikePrice']} is \
+              {data['filtered']['data'][x]['PE']['askPrice']}")
+        print(f"Call Value of the Strike Price  {data['filtered']['data'][x+2]['CE']['strikePrice']} is \
+              {data['filtered']['data'][x+2]['CE']['askPrice']}")
+        break
