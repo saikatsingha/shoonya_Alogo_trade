@@ -1,7 +1,6 @@
 import requests
 import json
 
-
 api_endpoint = f"https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
 headers = {
         'Connection': 'keep-alive',
@@ -21,18 +20,25 @@ s = requests.Session()
 response = s.get(api_endpoint, headers=headers)
 data = json.loads(response.content)
 
-for i in data['records']:
-    if i == 'underlyingValue' :
-        print(f"The current value of NIfty is {data['records'][i]}")
-        find_put = data['records'][i] - (data['records'][i]%100)
-        find_call = find_put + 100
+underlyingValue = data['records']['data'][0]['PE']['underlyingValue']
+print(f"Nifty Present Value is {underlyingValue }")
+
+print('Please enter any expiary from the following')
+for i in data['records']['expiryDates']:
+    print(i)
+print('Please enter any expiary from the above')
+expiary = str(input())
+
+find_put = underlyingValue - (underlyingValue%100)
+find_call = find_put + 100
+
 x = 0
-for i in data['filtered']['data']:
-    # print(data['filtered']['data'][x]['strikePrice'])
-    x = x+1
-    if data['filtered']['data'][x]['strikePrice'] == find_put :
-        print(f"Put Value of the Strike Price  {data['filtered']['data'][x]['PE']['strikePrice']} is \
-              {data['filtered']['data'][x]['PE']['askPrice']}")
-        print(f"Call Value of the Strike Price  {data['filtered']['data'][x+2]['CE']['strikePrice']} is \
-              {data['filtered']['data'][x+2]['CE']['askPrice']}")
+for i in data['records']['data']:
+    if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_put):
+        print(f"Put Value of the Strike Price  {find_put} is {data['records']['data'][x]['PE']['lastPrice']}")
+        print(f"Call Value of the Strike Price {find_put} is {data['records']['data'][x]['CE']['lastPrice']}")
+    if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_call):
+        print(f"Put Value of the Strike Price  {find_call} is {data['records']['data'][x]['PE']['lastPrice']}")
+        print(f"Call Value of the Strike Price {find_call} is {data['records']['data'][x]['CE']['lastPrice']}")
         break
+    x = x+1
