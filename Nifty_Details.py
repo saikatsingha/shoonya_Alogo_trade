@@ -1,7 +1,10 @@
 import requests
 import json
+import time
+import datetime
 
 api_endpoint = f"https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
+
 headers = {
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0',
@@ -17,28 +20,42 @@ headers = {
     }
 
 s = requests.Session()
-response = s.get(api_endpoint, headers=headers)
-data = json.loads(response.content)
+# response = s.get(api_endpoint, headers=headers)
+# data = json.loads(response.content)
+# print('Please enter any expiary from the following')
+# for i in data['records']['expiryDates']:
+#     print(i)
+# print('Please enter any expiary from the above')
+# expiary = str(input())
 
-underlyingValue = data['records']['data'][0]['PE']['underlyingValue']
-print(f"Nifty Present Value is {underlyingValue }")
+expiary = '13-Apr-2023'
+market_end_time="23:30:00"
+while True:
+    current_time = datetime.datetime.now().time().strftime('%H:%M:%S')
+    if current_time <= market_end_time:
+        print(f"Current Time is {current_time }")
+        
+        response = s.get(api_endpoint, headers=headers)
+        data = json.loads(response.content)
+        # print(data['records']['data'][0])
+        underlyingValue = data['records']['data'][0]['CE']['underlyingValue']
+        print(f"Nifty Present Value is {underlyingValue }")
+        find_put = underlyingValue - (underlyingValue%100)
+        find_call = find_put + 100
 
-print('Please enter any expiary from the following')
-for i in data['records']['expiryDates']:
-    print(i)
-print('Please enter any expiary from the above')
-expiary = str(input())
+        x = 0
+        for i in data['records']['data']:
+            if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_put):
+                print(f"Put Value of the Strike Price  {find_put} is {data['records']['data'][x]['PE']['lastPrice']}")
+                print(f"Call Value of the Strike Price {find_put} is {data['records']['data'][x]['CE']['lastPrice']}")
+            if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_call):
+                print(f"Put Value of the Strike Price  {find_call} is {data['records']['data'][x]['PE']['lastPrice']}")
+                print(f"Call Value of the Strike Price {find_call} is {data['records']['data'][x]['CE']['lastPrice']}")
+                break
+            x = x+1
+    
 
-find_put = underlyingValue - (underlyingValue%100)
-find_call = find_put + 100
-
-x = 0
-for i in data['records']['data']:
-    if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_put):
-        print(f"Put Value of the Strike Price  {find_put} is {data['records']['data'][x]['PE']['lastPrice']}")
-        print(f"Call Value of the Strike Price {find_put} is {data['records']['data'][x]['CE']['lastPrice']}")
-    if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_call):
-        print(f"Put Value of the Strike Price  {find_call} is {data['records']['data'][x]['PE']['lastPrice']}")
-        print(f"Call Value of the Strike Price {find_call} is {data['records']['data'][x]['CE']['lastPrice']}")
+    else:
         break
-    x = x+1
+
+    time.sleep(60)
