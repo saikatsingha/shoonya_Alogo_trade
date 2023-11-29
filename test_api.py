@@ -11,13 +11,13 @@ api = ShoonyaApiPy()
 #credentials
 user    = input("Enter your User ID: ")
 pwd     = input("Enter your Password: ")
-factor2 = input("Enter your PAN: ")
+factor2 = input("Enter your OTP/TOTP: ")
 vc      = 'FA164640_U'
 app_key = input("Enter your API Key: ")
 imei    = 'abc1234'
 
-print(user, pwd, factor2, app_key)
+#print(user, pwd, factor2, app_key)
 #make the api call
 ret = api.login(userid=user, password=pwd, twoFA=factor2, vendor_code=vc, api_secret=app_key, imei=imei)
-
-print(ret)
+for r in ret:
+    print(r[0], sep="\n")
