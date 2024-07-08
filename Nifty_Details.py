@@ -2,6 +2,7 @@ import requests
 import json
 import time
 import datetime
+import array as arr 
 
 api_endpoint = f"https://www.nseindia.com/api/option-chain-indices?symbol=NIFTY"
 
@@ -20,7 +21,7 @@ headers = {
     }
 
 s = requests.Session()
-# response = s.get(api_endpoint, headers=headers)
+response = s.get(api_endpoint, headers=headers)
 # data = json.loads(response.content)
 # print('Please enter any expiary from the following')
 # for i in data['records']['expiryDates']:
@@ -28,33 +29,40 @@ s = requests.Session()
 # print('Please enter any expiary from the above')
 # expiary = str(input())
 
-expiary = '13-Apr-2023'
+expiary = '11-Jul-2024'
 market_end_time="23:30:00"
 while True:
     current_time = datetime.datetime.now().time().strftime('%H:%M:%S')
     if current_time <= market_end_time:
-        print(f"Current Time is {current_time }")
+        # print(f"Current Time is {current_time }")
         
         response = s.get(api_endpoint, headers=headers)
         data = json.loads(response.content)
         # print(data['records']['data'][0])
-        underlyingValue = data['records']['data'][0]['CE']['underlyingValue']
-        print(f"Nifty Present Value is {underlyingValue }")
+        underlyingValue = data['records']['data'][0]['PE']['underlyingValue']
+        # print(f"Nifty Present Value is {underlyingValue }")
         find_put = underlyingValue - (underlyingValue%100)
         find_call = find_put + 100
+        # print(find_call)
+        # print(find_put)
 
         x = 0
         for i in data['records']['data']:
             if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_put):
-                print(f"Put Value of the Strike Price  {find_put} is {data['records']['data'][x]['PE']['lastPrice']}")
-                print(f"Call Value of the Strike Price {find_put} is {data['records']['data'][x]['CE']['lastPrice']}")
+                y=0
+                for y in (data['records']['data'][x]['PE']):
+                    # numbers = arr.array(data['records']['data'][x]['PE'][y])
+                    # index = data['records']['data'][x]['PE'].index(data['records']['data'][x]['PE'][y])
+                    print(y)
+                    print(data['records']['data'][x]['PE'][y])
+                # print(f"Put Value of the Strike Price  {find_put} is {data['records']['data'][x]['PE']['lastPrice']}")
+                # print(f"Call Value of the Strike Price {find_put} is {data['records']['data'][x]['CE']['lastPrice']}")
             if (data['records']['data'][x]['expiryDate'] == expiary) and (data['records']['data'][x]['strikePrice'] == find_call):
-                print(f"Put Value of the Strike Price  {find_call} is {data['records']['data'][x]['PE']['lastPrice']}")
-                print(f"Call Value of the Strike Price {find_call} is {data['records']['data'][x]['CE']['lastPrice']}")
+                    # print(f"Put Value of the Strike Price  {find_call} is {data['records']['data'][x]['PE']['lastPrice']}")
+                    # print(f"Call Value of the Strike Price {find_call} is {data['records']['data'][x]['CE']['lastPrice']}")
                 break
             x = x+1
     
-
     else:
         break
 
